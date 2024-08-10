@@ -59,7 +59,7 @@ if __name__ == "__main__":
         idx_ += 1
         dataName = istep
         time1 = time.time()
-        patient_dir = test_data["patient_dir"]
+        patient_dir = test_data["patient_dir"][0]
         diffusion.feed_data(test_data)
         diffusion.test_registration()
         time2 = time.time()
