@@ -67,6 +67,8 @@ if __name__ == "__main__":
         print("visuals['contF'].shape", visuals['contF'].shape)
         defm_frames_visual = visuals['contD'].squeeze(0).numpy().transpose(0, 2, 3, 1)
         flow_frames = visuals['contF'].numpy().transpose(0, 3, 4, 2, 1)
+        print("defm_frames_visual.shape", defm_frames_visual.shape)
+        print("flow_frames.shape", flow_frames.shape)
         flow_frames_ES = flow_frames[-1]
         sflow = torch.from_numpy(flow_frames_ES.transpose(3, 2, 0, 1).copy()).unsqueeze(0)
         sflow = Metrics.transform_grid(sflow[:, 0], sflow[:, 1], sflow[:, 2])
