@@ -63,7 +63,8 @@ if __name__ == "__main__":
         diffusion.test_registration()
         time2 = time.time()
         visuals = diffusion.get_current_registration()
-        # print(visuals['contF'].shape)
+        print("visuals['contD'].shape", visuals['contD'].shape)
+        print("visuals['contF'].shape", visuals['contF'].shape)
         defm_frames_visual = visuals['contD'].squeeze(0).numpy().transpose(0, 2, 3, 1)
         flow_frames = visuals['contF'].numpy().transpose(0, 3, 4, 2, 1)
         flow_frames_ES = flow_frames[-1]
@@ -80,6 +81,8 @@ if __name__ == "__main__":
                                    mode='nearest')
         regist_seg_=regist_seg.permute(0,1,3, 4, 2)
         regist_seg = regist_seg.squeeze().cpu().numpy().transpose(1, 2, 0)
+        print("regist_seg.shape", regist_seg.shape)
+        print("np.unique(regist_seg)", np.unique(regist_seg))
         label_seg = test_data['FS'][0].cpu().numpy()
         origin_seg = test_data['MS'][0].cpu().numpy()
         vals_regist = Metrics.dice_ACDC(regist_seg, label_seg)[::3]
