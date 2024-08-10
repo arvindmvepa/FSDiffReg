@@ -30,10 +30,12 @@ class ACDCDataset(Dataset):
         dataB = ES_im
         dataB=sitk.ReadImage(dataB)
         dataB=sitk.GetArrayFromImage(dataB).astype(np.float32).transpose(2,1,0)
-        label_dataA = ED_gt
+        # change for label/scribble
+        label_dataA = ED_scribble
         label_dataA=sitk.ReadImage(label_dataA)
         label_dataA=sitk.GetArrayFromImage(label_dataA).transpose(2,1,0)
-        label_dataB = ES_gt
+        # change for label/scribble
+        label_dataB = ES_scribble
         label_dataB=sitk.ReadImage(label_dataB)
         label_dataB=sitk.GetArrayFromImage(label_dataB).transpose(2,1,0)
 

@@ -92,7 +92,8 @@ if __name__ == "__main__":
         h5_save_path = os.path.join(out_dir, f'{patient_dir}.h5')
         with h5py.File(h5_save_path, 'w') as h5f:
             h5f.create_dataset('reg_image', data=registered_image, compression='gzip')
-            h5f.create_dataset('reg_label', data=regist_seg, compression='gzip')
+            #h5f.create_dataset('reg_label', data=regist_seg, compression='gzip')
+            h5f.create_dataset('reg_scribble', data=regist_seg, compression='gzip')
 
         # Dice score calculations and other metrics
         label_seg = test_data['FS'][0].cpu().numpy()
