@@ -13,7 +13,7 @@ class ACDCDataset(Dataset):
         self.imageNum = []
         self.dataroot = dataroot
 
-        patient_dirs = sorted(glob(os.path.join(dataroot, '*.')))
+        patient_dirs = sorted(glob(os.path.join(dataroot, '*')))
 
         self.data_len = len(patient_dirs)
         self.fineSize = [128, 128, 32]
