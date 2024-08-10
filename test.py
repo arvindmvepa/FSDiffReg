@@ -11,9 +11,7 @@ from math import *
 import time
 import numpy as np
 import torch.nn.functional as F
-
-
-
+import h5py  # Import h5py for saving to HDF5 files
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -34,12 +32,12 @@ if __name__ == "__main__":
     torch.backends.cudnn.benchmark = True
 
     phase = 'test'
-    dataset_opt=opt['datasets']['test']
+    dataset_opt = opt['datasets']['test']
     test_set = Data.create_dataset_3D(dataset_opt, phase)
     test_loader = Data.create_dataloader(test_set, dataset_opt, phase)
     print('Dataset Initialized')
 
-    opt['path']['resume_state']=args.weights
+    opt['path']['resume_state'] = args.weights
     # model
     diffusion = Model.create_model(opt)
     print("Model Initialized")
@@ -48,27 +46,26 @@ if __name__ == "__main__":
     registDice = np.zeros((len(test_set), 5))
     originDice = np.zeros((len(test_set), 5))
     registTime = []
-    registTime = []
     print('Begin Model Evaluation.')
     idx_ = 0
     result_path = '{}'.format(opt['path']['results'])
-        
+
     os.makedirs(result_path, exist_ok=True)
     print(len(test_loader))
-    for istep,  test_data in enumerate(test_loader):
+    for istep, test_data in enumerate(test_loader):
         idx_ += 1
-        dataName=istep
+        dataName = istep
         time1 = time.time()
         diffusion.feed_data(test_data)
         diffusion.test_registration()
         time2 = time.time()
         visuals = diffusion.get_current_registration()
-        print("visuals['contD'].shape", visuals['contD'].shape)
-        print("visuals['contF'].shape", visuals['contF'].shape)
-        defm_frames_visual = visuals['contD'].squeeze(0).numpy().transpose(0, 2, 3, 1)
+
+        # Get the registered image
+        registered_image = visuals['contD'].squeeze(0).cpu().numpy()
+
+        # Process the flow field for mask registration
         flow_frames = visuals['contF'].numpy().transpose(0, 3, 4, 2, 1)
-        print("defm_frames_visual.shape", defm_frames_visual.shape)
-        print("flow_frames.shape", flow_frames.shape)
         flow_frames_ES = flow_frames[-1]
         sflow = torch.from_numpy(flow_frames_ES.transpose(3, 2, 0, 1).copy()).unsqueeze(0)
         sflow = Metrics.transform_grid(sflow[:, 0], sflow[:, 1], sflow[:, 2])
@@ -77,24 +74,31 @@ if __name__ == "__main__":
         segflow[:, 2] = (sflow[:, 0] / (nd - 1) - 0.5) * 2.0  # D[0 -> 2]
         segflow[:, 1] = (sflow[:, 1] / (nh - 1) - 0.5) * 2.0  # H[1 -> 1]
         segflow[:, 0] = (sflow[:, 2] / (nw - 1) - 0.5) * 2.0  # W[2 -> 0]
+
         origin_seg = test_data['MS'].squeeze()
         origin_seg = origin_seg.permute(2, 0, 1).unsqueeze(0).unsqueeze(0)
         regist_seg = F.grid_sample(origin_seg.cuda().float(), (segflow.cuda().float().permute(0, 2, 3, 4, 1)),
                                    mode='nearest')
-        regist_seg_=regist_seg.permute(0,1,3, 4, 2)
         regist_seg = regist_seg.squeeze().cpu().numpy().transpose(1, 2, 0)
-        print("regist_seg.shape", regist_seg.shape)
-        print("np.unique(regist_seg)", np.unique(regist_seg))
+
+        # Save the registered image and mask to an HDF5 file
+        h5_save_path = os.path.join(result_path, f'registered_data_{dataName}.h5')
+        with h5py.File(h5_save_path, 'w') as h5f:
+            h5f.create_dataset('registered_image', data=registered_image, compression='gzip')
+            h5f.create_dataset('registered_mask', data=regist_seg, compression='gzip')
+
+        # Dice score calculations and other metrics
         label_seg = test_data['FS'][0].cpu().numpy()
         origin_seg = test_data['MS'][0].cpu().numpy()
         vals_regist = Metrics.dice_ACDC(regist_seg, label_seg)[::3]
         vals_origin = Metrics.dice_ACDC(origin_seg, label_seg)[::3]
-        
+
         registDice[istep] = vals_regist
         originDice[istep] = vals_origin
         print('---- Original Dice: %03f | Deformed Dice: %03f' % (np.mean(vals_origin), np.mean(vals_regist)))
         registTime.append(time2 - time1)
         time.sleep(1)
+
     omdice, osdice = np.mean(originDice), np.std(originDice)
     mdice, sdice = np.mean(registDice), np.std(registDice)
     mtime, stime = np.mean(registTime), np.std(registTime)
