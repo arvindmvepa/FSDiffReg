@@ -50,7 +50,7 @@ if __name__ == "__main__":
     print('Begin Model Evaluation.')
     idx_ = 0
 
-    out_dir = "/local2/amvepa91/FSDiffReg/database/ACDC/training_mod"
+    out_dir = "/local2/amvepa91/FSDiffReg/ACDC/training_mod"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
