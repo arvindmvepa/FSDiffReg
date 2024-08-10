@@ -21,7 +21,7 @@ class ACDCDataset(Dataset):
 
     def __getitem__(self, index):
         patient_dir = self.patient_dirs[index]
-        patient_files = sorted(glob(patient_dir, "*"))
+        patient_files = sorted(glob(os.path.join(patient_dir, "*")))
         ED_gt, ED_im, ES_gt, ES_im = sorted([file_ for file_ in patient_files if "frame" in file_])
         dataA = ED_im
         dataA=sitk.ReadImage(dataA)
