@@ -53,14 +53,13 @@ if __name__ == "__main__":
     out_dir = "/local2/amvepa91/FSDiffReg/ACDC/training_mod"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-    print("out_dir ", out_dir)
 
     print(len(test_loader))
     for istep, test_data in enumerate(test_loader):
         idx_ += 1
         dataName = istep
         time1 = time.time()
-        patient_dir = test_data["patient_dir"][0]
+        patient_dir = os.path.basename(test_data["patient_dir"][0])
         print("processing ", patient_dir)
         diffusion.feed_data(test_data)
         diffusion.test_registration()
