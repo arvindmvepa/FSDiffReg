@@ -14,6 +14,8 @@ class ACDCDataset(Dataset):
         self.dataroot = dataroot
 
         patient_dirs = sorted(glob(os.path.join(dataroot, '*')))
+        print("dataroot ", dataroot)
+        print("patient_dirs", patient_dirs)
 
         self.data_len = len(patient_dirs)
         self.fineSize = [128, 128, 32]
