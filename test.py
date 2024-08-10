@@ -60,6 +60,7 @@ if __name__ == "__main__":
         dataName = istep
         time1 = time.time()
         patient_dir = test_data["patient_dir"][0]
+        print("processing ", patient_dir)
         diffusion.feed_data(test_data)
         diffusion.test_registration()
         time2 = time.time()
@@ -102,7 +103,6 @@ if __name__ == "__main__":
         originDice[istep] = vals_origin
         print('---- Original Dice: %03f | Deformed Dice: %03f' % (np.mean(vals_origin), np.mean(vals_regist)))
         registTime.append(time2 - time1)
-        time.sleep(1)
 
     omdice, osdice = np.mean(originDice), np.std(originDice)
     mdice, sdice = np.mean(registDice), np.std(registDice)
