@@ -53,6 +53,7 @@ if __name__ == "__main__":
     out_dir = "/local2/amvepa91/FSDiffReg/ACDC/training_mod"
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
+    print("out_dir ", out_dir)
 
     print(len(test_loader))
     for istep, test_data in enumerate(test_loader):
