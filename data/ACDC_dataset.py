@@ -10,10 +10,9 @@ from glob import glob
 class ACDCDataset(Dataset):
     def __init__(self, dataroot, split='train'):
         self.split = split
-        self.imageNum = []
         self.dataroot = dataroot
 
-        patient_dirs = sorted(glob(os.path.join(dataroot, '*')))
+        self.patient_dirs = sorted(glob(os.path.join(dataroot, '*')))
         print("dataroot ", dataroot)
         print("patient_dirs", patient_dirs)
 
@@ -24,7 +23,7 @@ class ACDCDataset(Dataset):
         return self.data_len
 
     def __getitem__(self, index):
-        patient_dir = self.imageNum[index]
+        patient_dir = self.patient_dirs[index]
         patient_files = sorted(glob(patient_dir, "*"))
         ED_gt, ED_im, ES_gt, ES_im = sorted([file_ for file_ in patient_files if "frame" in file_])
         dataA = ED_im
