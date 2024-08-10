@@ -86,6 +86,7 @@ if __name__ == "__main__":
         regist_seg = F.grid_sample(origin_seg.cuda().float(), (segflow.cuda().float().permute(0, 2, 3, 4, 1)),
                                    mode='nearest')
         regist_seg = regist_seg.squeeze().cpu().numpy().transpose(1, 2, 0)
+        print(np.unique(regist_seg))
 
         # Save the registered image and mask to an HDF5 file
         h5_save_path = os.path.join(out_dir, f'{patient_dir}.h5')
