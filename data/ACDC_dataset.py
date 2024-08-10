@@ -13,10 +13,7 @@ class ACDCDataset(Dataset):
         self.dataroot = dataroot
 
         self.patient_dirs = sorted(glob(os.path.join(dataroot, '*')))
-        print("dataroot ", dataroot)
-        print("patient_dirs", patient_dirs)
-
-        self.data_len = len(patient_dirs)
+        self.data_len = len(self.patient_dirs)
         self.fineSize = [128, 128, 32]
 
     def __len__(self):
