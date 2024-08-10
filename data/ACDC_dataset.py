@@ -5,6 +5,7 @@ import numpy as np
 import scipy.io as sio
 import json
 import SimpleITK as sitk
+from glob import glob
 
 class ACDCDataset(Dataset):
     def __init__(self, dataroot, split='train'):
@@ -12,30 +13,29 @@ class ACDCDataset(Dataset):
         self.imageNum = []
         self.dataroot = dataroot
 
-        datapath = os.path.join(dataroot, split+'.json')
-        with open(datapath, 'r') as f:
-            self.imageNum = json.load(f)
+        patient_dirs = sorted(glob(os.path.join(dataroot, '*.')))
 
-        self.data_len = len(self.imageNum)
+        self.data_len = len(patient_dirs)
         self.fineSize = [128, 128, 32]
 
     def __len__(self):
         return self.data_len
 
     def __getitem__(self, index):
-        dataPath = self.imageNum[index]
-        # data_ = sio.loadmat(dataPath)
-        dataA = dataPath['image_ED']
+        patient_dir = self.imageNum[index]
+        patient_files = sorted(glob(patient_dir, "*"))
+        ED_gt, ED_im, ES_gt, ES_im = sorted([file_ for file_ in patient_files if "frame" in file_])
+        dataA = ED_im
         dataA=sitk.ReadImage(dataA)
         dataA=sitk.GetArrayFromImage(dataA).astype(np.float32).transpose(2,1,0)
         # print(dataA.shape)
-        dataB = dataPath['image_ES']
+        dataB = ES_im
         dataB=sitk.ReadImage(dataB)
         dataB=sitk.GetArrayFromImage(dataB).astype(np.float32).transpose(2,1,0)
-        label_dataA = dataPath['label_ED']
+        label_dataA = ED_gt
         label_dataA=sitk.ReadImage(label_dataA)
         label_dataA=sitk.GetArrayFromImage(label_dataA).transpose(2,1,0)
-        label_dataB = dataPath['label_ES']
+        label_dataB = ES_gt
         label_dataB=sitk.ReadImage(label_dataB)
         label_dataB=sitk.GetArrayFromImage(label_dataB).transpose(2,1,0)
 
@@ -80,4 +80,4 @@ class ACDCDataset(Dataset):
             label_dataA, label_dataB = label_dataA_, label_dataB_
         [data, label] = Util.transform_augment([dataA, dataB], split=self.split, min_max=(-1, 1))
         
-        return {'M': data, 'F': label, 'MS': label_dataA, 'FS': label_dataB, 'Index': index}
+        return {'M': data, 'F': label, 'MS': label_dataA, 'FS': label_dataB, 'Index': index, 'patient_dir': patient_dir}

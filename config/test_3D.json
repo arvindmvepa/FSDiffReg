@@ -12,7 +12,7 @@
         "centered": true,
         "test": {
             "name": "3D",
-            "dataroot": "/local2/amvepa91/FSDiffReg/toy_sample",
+            "dataroot": "/local2/amvepa91/FSDiffReg/database/ACDC/training",
             "data_len": 3
         }
     },

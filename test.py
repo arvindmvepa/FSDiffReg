@@ -14,6 +14,7 @@ import torch.nn.functional as F
 import h5py  # Import h5py for saving to HDF5 files
 
 if __name__ == "__main__":
+    data_root = "/local2/amvepa91/FSDiffReg/database/ACDC/training"
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, default='config/.json',
                         help='JSON file for configuration')
@@ -48,18 +49,22 @@ if __name__ == "__main__":
     registTime = []
     print('Begin Model Evaluation.')
     idx_ = 0
-    result_path = '{}'.format(opt['path']['results'])
 
-    os.makedirs(result_path, exist_ok=True)
+    out_dir = "/local2/amvepa91/FSDiffReg/database/ACDC/training_mod"
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
     print(len(test_loader))
     for istep, test_data in enumerate(test_loader):
         idx_ += 1
         dataName = istep
         time1 = time.time()
+        patient_dir = test_data["patient_dir"]
         diffusion.feed_data(test_data)
         diffusion.test_registration()
         time2 = time.time()
         visuals = diffusion.get_current_registration()
+
 
         # Get the registered image
         registered_image = visuals['contD'].squeeze(0).cpu().numpy()
@@ -82,10 +87,10 @@ if __name__ == "__main__":
         regist_seg = regist_seg.squeeze().cpu().numpy().transpose(1, 2, 0)
 
         # Save the registered image and mask to an HDF5 file
-        h5_save_path = os.path.join(result_path, f'registered_data_{dataName}.h5')
+        h5_save_path = os.path.join(out_dir, f'{patient_dir}.h5')
         with h5py.File(h5_save_path, 'w') as h5f:
-            h5f.create_dataset('registered_image', data=registered_image, compression='gzip')
-            h5f.create_dataset('registered_mask', data=regist_seg, compression='gzip')
+            h5f.create_dataset('reg_image', data=registered_image, compression='gzip')
+            h5f.create_dataset('reg_label', data=regist_seg, compression='gzip')
 
         # Dice score calculations and other metrics
         label_seg = test_data['FS'][0].cpu().numpy()
