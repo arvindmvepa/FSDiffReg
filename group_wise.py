@@ -78,6 +78,9 @@ if __name__ == "__main__":
             print(f"Group ED Image Data Type: {group_ed_img.pixeltype}")
             print(f"Moving ED Image Data Type: {ed_img.pixeltype}")
 
+            group_ed_img = group_ed_img.squeeze()
+            ed_img = ed_img.squeeze()
+
             # Register ED image to the group-wise ED template
             reg_ed = ants.registration(fixed=group_ed_img, moving=ed_img, type_of_transform='SyN')
 
