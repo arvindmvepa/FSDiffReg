@@ -80,4 +80,5 @@ class ACDCDataset(Dataset):
             label_dataA, label_dataB = label_dataA_, label_dataB_
         [data, label] = Util.transform_augment([dataA, dataB], split=self.split, min_max=(-1, 1))
         
-        return {'M': data, 'F': label, 'MS': label_dataA, 'FS': label_dataB, 'Index': index, 'patient_dir': patient_dir}
+        #return {'M': data, 'F': label, 'MS': label_dataA, 'FS': label_dataB, 'Index': index, 'patient_dir': patient_dir}
+        return {'ED': dataA, 'ES': dataB, 'ED_mask': label_dataA, 'ES_mask': label_dataB, 'Index': index, 'patient_dir': patient_dir}
