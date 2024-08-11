@@ -63,8 +63,8 @@ if __name__ == "__main__":
         ed_masks.append(ants.from_numpy(test_data['ED_mask'].cpu().numpy()))
         es_masks.append(ants.from_numpy(test_data['ES_mask'].cpu().numpy()))
 
-        group_ed_img = ants.average_images([ed_images])
-        group_es_img = ants.average_images([es_images])
+        group_ed_img = ants.average_images(ed_images)
+        group_es_img = ants.average_images(es_images)
 
         for ed_img,es_img,ed_mask,es_mask,patient_dir in zip(ed_images,es_images,ed_masks,es_masks,patient_dirs):
 
