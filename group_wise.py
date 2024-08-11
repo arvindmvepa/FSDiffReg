@@ -52,7 +52,6 @@ if __name__ == "__main__":
     es_masks = []
     patient_dirs = []
     for istep, test_data in enumerate(test_loader):
-        idx_ += 1
         dataName = istep
         time1 = time.time()
         patient_dir = os.path.basename(test_data["patient_dir"][0])
