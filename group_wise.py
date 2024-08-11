@@ -69,10 +69,10 @@ if __name__ == "__main__":
         patient_dirs.append(patient_dir)
         print("processing ", patient_dir)
 
-        ed_images.append(ants.from_numpy(test_data['ED']))
-        es_images.append(ants.from_numpy(test_data['ES']))
-        ed_masks.append(ants.from_numpy(test_data['ED_mask']))
-        es_masks.append(ants.from_numpy(test_data['ES_mask']))
+        ed_images.append(ants.from_numpy(test_data['ED'].cpu().numpy()))
+        es_images.append(ants.from_numpy(test_data['ES'].cpu().numpy()))
+        ed_masks.append(ants.from_numpy(test_data['ED_mask'].cpu().numpy()))
+        es_masks.append(ants.from_numpy(test_data['ES_mask'].cpu().numpy()))
 
         group_ed_img = ants.average_images([ed_images])
         group_es_img = ants.average_images([es_images])
