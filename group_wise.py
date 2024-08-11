@@ -75,6 +75,9 @@ if __name__ == "__main__":
             print(f"Group ED Image Size: {group_ed_img.shape}, Resolution: {group_ed_img.spacing}")
             print(f"Moving ED Image Size: {ed_img.shape}, Resolution: {ed_img.spacing}")
 
+            print(f"Group ED Image Data Type: {group_ed_img.pixeltype}")
+            print(f"Moving ED Image Data Type: {ed_img.pixeltype}")
+
             # Register ED image to the group-wise ED template
             reg_ed = ants.registration(fixed=group_ed_img, moving=ed_img, type_of_transform='SyN')
 
