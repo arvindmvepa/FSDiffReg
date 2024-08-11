@@ -42,17 +42,7 @@ if __name__ == "__main__":
     test_loader = Data.create_dataloader(test_set, dataset_opt, phase)
     print('Dataset Initialized')
 
-    opt['path']['resume_state'] = args.weights
-    # model
-    diffusion = Model.create_model(opt)
-    print("Model Initialized")
-    # Train
-
-    registDice = np.zeros((len(test_set), 5))
-    originDice = np.zeros((len(test_set), 5))
-    registTime = []
-    print('Begin Model Evaluation.')
-    idx_ = 0
+    print("Begin Group-wise Registration.")
 
     print(len(test_loader))
     # Initialize empty lists to store ED and ES images
