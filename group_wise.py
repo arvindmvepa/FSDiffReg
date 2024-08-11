@@ -71,35 +71,36 @@ if __name__ == "__main__":
             # Define the HDF5 file path for the current patient
             patient_h5_path = os.path.join(out_dir, f'{patient_dir}.h5')
 
-            # Open an HDF5 file to store the results for this patient
+            # Perform group-wise registration for ED phase
+            print(f"Group ED Image Size: {group_ed_img.shape}, Resolution: {group_ed_img.spacing}")
+            print(f"Moving ED Image Size: {ed_img.shape}, Resolution: {ed_img.spacing}")
+
+            # Register ED image to the group-wise ED template
+            reg_ed = ants.registration(fixed=group_ed_img, moving=ed_img, type_of_transform='SyN')
+
+            # Apply the transformation to the ED image and mask
+            warped_ed_img = ants.apply_transforms(fixed=group_ed_img, moving=ed_img,
+                                                  transformlist=reg_ed['fwdtransforms'])
+            warped_ed_mask = ants.apply_transforms(fixed=group_ed_img, moving=ed_mask,
+                                                   transformlist=reg_ed['fwdtransforms'],
+                                                   interpolator='nearestNeighbor')
+
+
+            # Register ES image to the group-wise ES template
+            reg_es = ants.registration(fixed=group_es_img, moving=es_img, type_of_transform='SyN')
+
+            # Apply the transformation to the ES image and mask
+            warped_es_img = ants.apply_transforms(fixed=group_es_img, moving=es_img,
+                                                  transformlist=reg_es['fwdtransforms'])
+            warped_es_mask = ants.apply_transforms(fixed=group_es_img, moving=es_mask,
+                                                   transformlist=reg_es['fwdtransforms'],
+                                                   interpolator='nearestNeighbor')
+
             with h5py.File(patient_h5_path, 'w') as h5f:
-                # Perform group-wise registration for ED phase
-
-                # Register ED image to the group-wise ED template
-                reg_ed = ants.registration(fixed=group_ed_img, moving=ed_img, type_of_transform='SyN')
-
-                # Apply the transformation to the ED image and mask
-                warped_ed_img = ants.apply_transforms(fixed=group_ed_img, moving=ed_img,
-                                                      transformlist=reg_ed['fwdtransforms'])
-                warped_ed_mask = ants.apply_transforms(fixed=group_ed_img, moving=ed_mask,
-                                                       transformlist=reg_ed['fwdtransforms'],
-                                                       interpolator='nearestNeighbor')
-
                 # Save the registered ED image and mask to the HDF5 file
                 ed_group = h5f.create_group('ED')
                 ed_group.create_dataset('reg_image_ed', data=warped_ed_img.view())
                 ed_group.create_dataset('reg_scribble_ed', data=warped_ed_mask.view())
-
-
-                # Register ES image to the group-wise ES template
-                reg_es = ants.registration(fixed=group_es_img, moving=es_img, type_of_transform='SyN')
-
-                # Apply the transformation to the ES image and mask
-                warped_es_img = ants.apply_transforms(fixed=group_es_img, moving=es_img,
-                                                      transformlist=reg_es['fwdtransforms'])
-                warped_es_mask = ants.apply_transforms(fixed=group_es_img, moving=es_mask,
-                                                       transformlist=reg_es['fwdtransforms'],
-                                                       interpolator='nearestNeighbor')
 
                 # Save the registered ES image and mask to the HDF5 file
                 es_group = h5f.create_group('ES')
