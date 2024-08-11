@@ -68,53 +68,53 @@ if __name__ == "__main__":
         ed_masks.append(ants.from_numpy(test_data['ED_mask'].cpu().numpy().squeeze()))
         es_masks.append(ants.from_numpy(test_data['ES_mask'].cpu().numpy().squeeze()))
 
-        group_ed_img = ants.average_images(ed_images)
-        group_es_img = ants.average_images(es_images)
+    group_ed_img = ants.average_images(ed_images)
+    group_es_img = ants.average_images(es_images)
 
-        for ed_img,es_img,ed_mask,es_mask,patient_dir in zip(ed_images,es_images,ed_masks,es_masks,patient_dirs):
+    for ed_img,es_img,ed_mask,es_mask,patient_dir in zip(ed_images,es_images,ed_masks,es_masks,patient_dirs):
 
-            # Define the HDF5 file path for the current patient
-            patient_h5_path = os.path.join(out_dir, f'{patient_dir}.h5')
+        # Define the HDF5 file path for the current patient
+        patient_h5_path = os.path.join(out_dir, f'{patient_dir}.h5')
 
-            # Perform group-wise registration for ED phase
-            print(f"Group ED Image Size: {group_ed_img.shape}, Resolution: {group_ed_img.spacing}")
-            print(f"Moving ED Image Size: {ed_img.shape}, Resolution: {ed_img.spacing}")
+        # Perform group-wise registration for ED phase
+        print(f"Group ED Image Size: {group_ed_img.shape}, Resolution: {group_ed_img.spacing}")
+        print(f"Moving ED Image Size: {ed_img.shape}, Resolution: {ed_img.spacing}")
 
-            print(f"Group ED Image Data Type: {group_ed_img.pixeltype}")
-            print(f"Moving ED Image Data Type: {ed_img.pixeltype}")
+        print(f"Group ED Image Data Type: {group_ed_img.pixeltype}")
+        print(f"Moving ED Image Data Type: {ed_img.pixeltype}")
 
-            # Register ED image to the group-wise ED template
-            reg_ed = ants.registration(fixed=group_ed_img, moving=ed_img, type_of_transform='SyN')
+        # Register ED image to the group-wise ED template
+        reg_ed = ants.registration(fixed=group_ed_img, moving=ed_img, type_of_transform='SyN')
 
-            # Apply the transformation to the ED image and mask
-            warped_ed_img = ants.apply_transforms(fixed=group_ed_img, moving=ed_img,
-                                                  transformlist=reg_ed['fwdtransforms'])
-            warped_ed_mask = ants.apply_transforms(fixed=group_ed_img, moving=ed_mask,
-                                                   transformlist=reg_ed['fwdtransforms'],
-                                                   interpolator='nearestNeighbor')
+        # Apply the transformation to the ED image and mask
+        warped_ed_img = ants.apply_transforms(fixed=group_ed_img, moving=ed_img,
+                                              transformlist=reg_ed['fwdtransforms'])
+        warped_ed_mask = ants.apply_transforms(fixed=group_ed_img, moving=ed_mask,
+                                               transformlist=reg_ed['fwdtransforms'],
+                                               interpolator='nearestNeighbor')
 
 
-            # Register ES image to the group-wise ES template
-            reg_es = ants.registration(fixed=group_es_img, moving=es_img, type_of_transform='SyN')
+        # Register ES image to the group-wise ES template
+        reg_es = ants.registration(fixed=group_es_img, moving=es_img, type_of_transform='SyN')
 
-            # Apply the transformation to the ES image and mask
-            warped_es_img = ants.apply_transforms(fixed=group_es_img, moving=es_img,
-                                                  transformlist=reg_es['fwdtransforms'])
-            warped_es_mask = ants.apply_transforms(fixed=group_es_img, moving=es_mask,
-                                                   transformlist=reg_es['fwdtransforms'],
-                                                   interpolator='nearestNeighbor')
+        # Apply the transformation to the ES image and mask
+        warped_es_img = ants.apply_transforms(fixed=group_es_img, moving=es_img,
+                                              transformlist=reg_es['fwdtransforms'])
+        warped_es_mask = ants.apply_transforms(fixed=group_es_img, moving=es_mask,
+                                               transformlist=reg_es['fwdtransforms'],
+                                               interpolator='nearestNeighbor')
 
-            with h5py.File(patient_h5_path, 'w') as h5f:
-                # Save the registered ED image and mask to the HDF5 file
-                ed_group = h5f.create_group('ED')
-                ed_group.create_dataset('reg_image_ed', data=warped_ed_img.view())
-                ed_group.create_dataset('reg_scribble_ed', data=warped_ed_mask.view())
+        with h5py.File(patient_h5_path, 'w') as h5f:
+            # Save the registered ED image and mask to the HDF5 file
+            ed_group = h5f.create_group('ED')
+            ed_group.create_dataset('reg_image_ed', data=warped_ed_img.view())
+            ed_group.create_dataset('reg_scribble_ed', data=warped_ed_mask.view())
 
-                # Save the registered ES image and mask to the HDF5 file
-                es_group = h5f.create_group('ES')
-                es_group.create_dataset('reg_image_es', data=warped_es_img.view())
-                es_group.create_dataset('reg_scribble_es', data=warped_es_mask.view())
+            # Save the registered ES image and mask to the HDF5 file
+            es_group = h5f.create_group('ES')
+            es_group.create_dataset('reg_image_es', data=warped_es_img.view())
+            es_group.create_dataset('reg_scribble_es', data=warped_es_mask.view())
 
-            print(f"{patient_dir} data saved to {patient_h5_path}")
+        print(f"{patient_dir} data saved to {patient_h5_path}")
 
-        print("All patients processed and saved to individual HDF5 files.")
+    print("All patients processed and saved to individual HDF5 files.")
